@@ -1,6 +1,8 @@
 package layouts;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import javax.swing.JButton;
 import java.awt.BorderLayout;
@@ -9,62 +11,97 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LayoutsTest {
 
     @Test
-    void borderLayoutUbicaCadaBotonEnSuZona() {
+    void borderLayoutUbicaCadaBotonYPermiteQuitarZonas() {
         PanelBorderLayout panel = new PanelBorderLayout();
-        BorderLayout layout = assertInstanceOf(BorderLayout.class, panel.getLayout());
-        assertEquals("Button 1", ((JButton) layout.getLayoutComponent(BorderLayout.PAGE_START)).getText());
+        BorderLayout layout = assertInstanceOf(BorderLayout.class, panel.vista.getLayout());
         assertEquals("Button 2", ((JButton) layout.getLayoutComponent(BorderLayout.CENTER)).getText());
-        assertEquals("Button 3", ((JButton) layout.getLayoutComponent(BorderLayout.LINE_START)).getText());
         assertEquals("Long-Named Button 4", ((JButton) layout.getLayoutComponent(BorderLayout.PAGE_END)).getText());
-        assertEquals("Button 5", ((JButton) layout.getLayoutComponent(BorderLayout.LINE_END)).getText());
+
+        panel.activas.get(PanelBorderLayout.Zona.CENTER).doClick();
+        layout = (BorderLayout) panel.vista.getLayout();
+        assertNull(layout.getLayoutComponent(BorderLayout.CENTER));
+        assertEquals(4, panel.vista.getComponentCount());
+        assertFalse(panel.getCodigo().contains("CENTER"));
     }
 
     @Test
-    void gridYFlowTienenLosCincoBotonesEnOrden() {
-        PanelGridLayout grid = new PanelGridLayout();
-        assertEquals(2, assertInstanceOf(GridLayout.class, grid.getLayout()).getColumns());
-        assertEquals(5, grid.getComponentCount());
-        assertEquals("Button 1", ((JButton) grid.getComponent(0)).getText());
+    void gridLayoutGeneraElCodigoYEvitaCeroFilasYColumnas() {
+        PanelGridLayout panel = new PanelGridLayout();
+        assertTrue(panel.getCodigo().startsWith("panel.setLayout(new GridLayout(0, 2, 5, 5));"));
+        panel.botones.setValue(7);
+        assertEquals(7, panel.vista.getComponentCount());
 
-        PanelFlowLayout flow = new PanelFlowLayout();
-        assertInstanceOf(FlowLayout.class, flow.getLayout());
-        assertEquals("Button 5", ((JButton) flow.getComponent(4)).getText());
+        panel.columnas.setValue(0);
+        assertEquals(1, panel.columnas.getValue());
+        assertInstanceOf(GridLayout.class, panel.vista.getLayout());
     }
 
     @Test
-    void banderaRespetaLasProporcionesDeNoruega() {
-        int rojas = 0;
-        int blancas = 0;
-        int azules = 0;
-        for (int f = 0; f < PanelBandera.FILAS; f++) {
-            for (int c = 0; c < PanelBandera.COLUMNAS; c++) {
-                Color color = PanelBandera.colorCelda(f, c);
-                if (color.equals(PanelBandera.ROJO)) {
-                    rojas++;
-                } else if (color.equals(PanelBandera.BLANCO)) {
-                    blancas++;
-                } else {
-                    azules++;
+    void gridLayoutConFilasRecalculaLasColumnas() {
+        PanelGridLayout panel = new PanelGridLayout();
+        panel.filas.setValue(2);
+        panel.columnas.setValue(5);
+        panel.botones.setValue(7);
+        assertEquals(4, panel.columnasEfectivas());
+        assertTrue(panel.getCodigo().contains("recalcula las columnas"));
+    }
+
+    @Test
+    void flowLayoutCambiaLaAlineacion() {
+        PanelFlowLayout panel = new PanelFlowLayout();
+        panel.alineacion.setSelectedItem(PanelFlowLayout.Alineacion.DERECHA);
+        FlowLayout layout = assertInstanceOf(FlowLayout.class, panel.vista.getLayout());
+        assertEquals(FlowLayout.TRAILING, layout.getAlignment());
+        assertTrue(panel.getCodigo().contains("FlowLayout.TRAILING"));
+    }
+
+    @Test
+    void elBotonInformaSusMedidas() {
+        PanelFlowLayout panel = new PanelFlowLayout();
+        JButton boton = (JButton) panel.vista.getComponent(0);
+        boton.setBounds(10, 20, 90, 30);
+        boton.doClick();
+        assertEquals("Button 1: 90 × 30 px, en la posición (10, 20) de la vista previa.", panel.getEstado());
+    }
+
+    /** Celdas de la cruz (sin borde) = ancho·(filas + columnas) − ancho². */
+    @ParameterizedTest
+    @CsvSource({"NORUEGA, 72", "SUECIA, 48", "DINAMARCA, 244", "FINLANDIA, 78", "ISLANDIA, 82"})
+    void cadaBanderaTieneLaCruzDelTamanioCorrecto(BanderaNordica b, int celdasCruz) {
+        int cruz = 0;
+        for (int f = 0; f < b.filas; f++) {
+            for (int c = 0; c < b.columnas; c++) {
+                if (b.colorCelda(f, c).equals(b.colorCruz)) {
+                    cruz++;
                 }
             }
         }
-        // Rojo: (6 + 12) × (6 + 6) = 216. Azul: cruz de 2 de ancho = 2·22 + 2·16 − 4 = 72.
-        assertEquals(216, rojas);
-        assertEquals(72, azules);
-        assertEquals(16 * 22 - 216 - 72, blancas);
+        assertEquals(celdasCruz, cruz);
     }
 
     @Test
-    void cruzDesplazadaHaciaElAsta() {
-        assertEquals(PanelBandera.ROJO, PanelBandera.colorCelda(0, 0));
-        assertEquals(PanelBandera.BLANCO, PanelBandera.colorCelda(0, 6));
-        assertEquals(PanelBandera.AZUL, PanelBandera.colorCelda(0, 7));
-        assertEquals(PanelBandera.AZUL, PanelBandera.colorCelda(8, 21));
-        assertEquals(PanelBandera.ROJO, PanelBandera.colorCelda(15, 21));
+    void noruegaRespetaSusFranjas() {
+        BanderaNordica n = BanderaNordica.NORUEGA;
+        Color rojo = n.fondo;
+        assertEquals(rojo, n.colorCelda(0, 0));
+        assertEquals(Color.WHITE, n.colorCelda(0, 6));
+        assertEquals(n.colorCruz, n.colorCelda(0, 7));
+        assertEquals(n.colorCruz, n.colorCelda(8, 21));
+        assertEquals(rojo, n.colorCelda(15, 21));
+    }
+
+    @Test
+    void laPestaniaDeBanderasCambiaLaCuadricula() {
+        PanelBandera panel = new PanelBandera();
+        panel.bandera.setSelectedItem(BanderaNordica.DINAMARCA);
+        assertTrue(panel.getCodigo().startsWith("panel.setLayout(new GridLayout(28, 37));"));
     }
 }

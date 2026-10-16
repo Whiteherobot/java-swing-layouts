@@ -2,19 +2,31 @@
 
 [![CI](https://github.com/Whiteherobot/java-swing-layouts/actions/workflows/ci.yml/badge.svg)](https://github.com/Whiteherobot/java-swing-layouts/actions/workflows/ci.yml)
 
-Ejercicio 03.01 de Programación Orientada a Objetos (mayo de 2022), en grupo:
-ventanas y paneles con Swing. Una ventana con pestañas muestra cómo acomodan
-los mismos cinco botones tres layouts distintos, y la última pestaña arma la
-bandera de Noruega con un `GridLayout`.
+Explorador de layouts de Swing. Ejercicio 03.01 de Programación Orientada a
+Objetos (mayo de 2022), en grupo: ventanas y paneles.
 
-![Las cuatro pestañas](docs/captura.png)
+En Swing, un *layout* es la regla que decide dónde va cada componente y cuánto
+mide cuando cambia el tamaño de la ventana. Esta aplicación permite modificar
+cada layout y ver el resultado al instante, junto con el código Java que lo
+produce.
 
-- **BorderLayout**: cinco zonas; el centro se queda con el espacio libre.
-- **GridLayout**: celdas iguales, dos columnas.
-- **FlowLayout**: en fila con su tamaño natural, y salta de línea cuando no cabe.
-- **Bandera**: 16 × 22 celdas, las proporciones oficiales de la bandera de
-  Noruega. El color de cada celda se calcula a partir de la posición de la cruz,
-  y la bandera mantiene su forma aunque cambie el tamaño de la ventana.
+![Explorador de layouts](docs/captura.png)
+
+- **BorderLayout**: cinco zonas. Al desactivar zonas se ve que el centro siempre
+  ocupa el espacio libre y los bordes solo su tamaño preferido. Es el layout
+  típico para la estructura de una ventana.
+- **GridLayout**: celdas iguales. Se pueden cambiar filas, columnas y cantidad
+  de botones. Cuando se fijan filas y columnas a la vez, Java respeta las filas
+  y recalcula las columnas, y el código lo indica.
+- **FlowLayout**: componentes en fila con su tamaño natural. Al achicar la
+  ventana pasan a la siguiente línea, y se puede cambiar la alineación.
+- **Banderas**: Noruega, Suecia, Dinamarca, Finlandia e Islandia dibujadas con
+  un `GridLayout` de celdas de color, cada una con sus proporciones oficiales.
+  Todas comparten el mismo algoritmo de la cruz nórdica, que solo cambia de
+  posición, ancho, borde y colores.
+
+Al hacer clic en cualquier botón de la vista previa, abajo se muestran su tamaño
+y su posición, es decir, el espacio que le asignó el layout.
 
 ## Cómo correrlo
 
@@ -25,14 +37,16 @@ Necesitas JDK 17 o superior. El proyecto trae el wrapper de Maven.
 java -jar target/swing-layouts-1.0.0.jar
 ```
 
+Las pruebas verifican la ubicación de los componentes, el código generado y las
+proporciones de cada bandera, y corren en GitHub Actions con Java 17 y 21.
+
 ## Qué cambió desde la entrega
 
-En 2022 eran cuatro ventanas separadas que se cerraban todas juntas, con
-etiquetas (`JLabel`) que hacían de botones y tres clases casi idénticas. La
-bandera se pintaba celda por celda en 120 líneas y tenía dos filas rojas arriba
-y una abajo, así que salía deformada. En 2026 quedó una sola ventana con
-pestañas, botones reales, un panel por layout, la bandera generada con sus
-proporciones y la interfaz creada en el hilo de eventos de Swing.
+En 2022 eran cuatro ventanas fijas que se cerraban todas juntas, con etiquetas
+que hacían de botones. La bandera de Noruega se pintaba celda por celda en 120
+líneas y salía deformada, con dos filas rojas arriba y una abajo. En 2026 se
+convirtió en un explorador interactivo, con una pestaña por layout, y la bandera
+pasó a ser un generador de banderas nórdicas con proporciones correctas.
 
 ## Autores
 

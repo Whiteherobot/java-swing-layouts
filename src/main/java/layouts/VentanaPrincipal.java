@@ -6,15 +6,15 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 /**
- * Ventana con una pestaña por ejemplo.
+ * Explorador de layouts: una pestaña por layout y una para las banderas.
  */
 public class VentanaPrincipal extends JFrame {
 
     public VentanaPrincipal() {
-        super("Ventanas y paneles");
+        super("Explorador de layouts");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setContentPane(crearPestanias());
-        setSize(520, 400);
+        setSize(820, 560);
         setLocationRelativeTo(null);
     }
 
@@ -23,7 +23,7 @@ public class VentanaPrincipal extends JFrame {
         pestanias.addTab("BorderLayout", new PanelBorderLayout());
         pestanias.addTab("GridLayout", new PanelGridLayout());
         pestanias.addTab("FlowLayout", new PanelFlowLayout());
-        pestanias.addTab("Bandera", new PanelBandera());
+        pestanias.addTab("Banderas", new PanelBandera());
         return pestanias;
     }
 

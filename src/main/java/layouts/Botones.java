@@ -1,24 +1,15 @@
 package layouts;
 
-import javax.swing.JButton;
-import java.util.List;
-
 /**
- * Los cinco botones que se usan en los tres ejemplos, para comparar cómo los
- * acomoda cada layout.
+ * Textos de los botones de ejemplo: los del tutorial clásico de layouts de Java,
+ * donde el cuarto tiene un nombre largo para notar cómo cada layout maneja los anchos.
  */
 final class Botones {
 
     private Botones() {
     }
 
-    /** Crea botones nuevos cada vez: un componente Swing solo puede estar en un contenedor. */
-    static List<JButton> ejemplo() {
-        return List.of(
-                new JButton("Button 1"),
-                new JButton("Button 2"),
-                new JButton("Button 3"),
-                new JButton("Long-Named Button 4"),
-                new JButton("Button 5"));
+    static String texto(int numero) {
+        return numero == 4 ? "Long-Named Button 4" : "Button " + numero;
     }
 }
